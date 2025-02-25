@@ -4,11 +4,11 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { Formik, Form, Field, ErrorMessage } from "formik"
 import * as Yup from "yup"
-import { getCustomers } from "../services/api"
-import { AlertCircle } from "lucide-react"
+import { createAccount, getCustomers } from "../services/api"
+import { AlertCircle, CreditCard } from "lucide-react"
 
 interface AccountFormProps {
-    onSubmit: (accountData: any) => void
+    onSubmit?: (accountData: any) => void
 }
 
 interface Client {
@@ -24,9 +24,10 @@ const validationSchema = Yup.object({
 
 const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
     const [clients, setClients] = useState<Client[]>([])
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     useEffect(() => {
-        fetchClients().then((r) => console.log("Clients fetched"))
+        fetchClients()
     }, [])
 
     const fetchClients = async () => {
@@ -38,15 +39,42 @@ const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
         }
     }
 
+    const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
+        try {
+            setErrorMessage(null) // Clear previous errors
+            const accountData = {
+                clientId: Number(values.clientId),
+                type: values.type,
+                solde: Number(values.solde),
+            }
+            const createdAccount = await createAccount(accountData)
+            resetForm()
+            if (onSubmit) onSubmit(createdAccount) // Reset form on success
+        } catch (error: any) {
+            // Display the error message from the backend
+            setErrorMessage(error.message || "An error occurred while creating the account")
+        } finally {
+            setSubmitting(false) // Ensure the form is no longer submitting
+        }
+    }
+
     return (
         <Formik
             initialValues={{ clientId: "", type: "", solde: "" }}
             validationSchema={validationSchema}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
         >
             {({ errors, touched }) => (
                 <Form className="space-y-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 font-serif">Create New Account</h2>
+
+                    {/* Display Backend Error */}
+                    {errorMessage && (
+                        <div className="mb-4 flex items-center text-sm text-red-600 bg-red-100 p-3 rounded-md">
+                            <AlertCircle className="h-5 w-5 mr-2" />
+                            {errorMessage}
+                        </div>
+                    )}
                     <div>
                         <label htmlFor="clientId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Client
@@ -125,6 +153,7 @@ const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
                         type="submit"
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:scale-105"
                     >
+                        <CreditCard className="h-5 w-5 mr-2" />
                         Create Account
                     </button>
                 </Form>

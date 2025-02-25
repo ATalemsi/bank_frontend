@@ -48,14 +48,7 @@ const AccountDetailsPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-background to-background/50">
             <Container maxWidth="md" className="py-12">
-                <Button
-                    onClick={() => navigate(-1)}
-                    variant="outlined"
-                    className="mb-8 flex items-center gap-2 hover:bg-primary/5 transition-colors duration-300"
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                </Button>
+
 
                 <Paper className="p-8 shadow-xl rounded-xl overflow-hidden border border-border/50 backdrop-blur-sm">
                     <Typography

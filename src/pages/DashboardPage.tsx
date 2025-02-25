@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom"
 
 interface Customer {
     id: number
-    name: string
+    nom: string
     email: string
 }
 
@@ -24,15 +24,23 @@ const DashboardPage: React.FC = () => {
     const [accounts, setAccounts] = useState<Account[]>([])
     const navigate = useNavigate()
 
+    // Fetch customers when the component mounts
     useEffect(() => {
-        fetchCustomers().then(r => console.log("Customers fetched"))
-        fetchAllAccounts().then(r => console.log("Accounts fetched"))
+        fetchCustomers().then(() => console.log("Customers fetched"))
     }, [])
+
+    // Fetch accounts for all customers after the customers state is updated
+    useEffect(() => {
+        if (customers.length > 0) {
+            fetchAllAccounts().then(() => console.log("Accounts fetched"))
+        }
+    }, [customers]) // This effect depends on the `customers` state
 
     const fetchCustomers = async () => {
         try {
             const data = await getCustomers()
             setCustomers(data)
+            console.log(data)
         } catch (error) {
             console.error("Failed to fetch customers:", error)
         }
@@ -76,7 +84,7 @@ const DashboardPage: React.FC = () => {
                             {customers.map((customer) => (
                                 <tr key={customer.id} className="hover:bg-[hsl(var(--muted))]">
                                     <td className="py-2 px-4">{customer.id}</td>
-                                    <td className="py-2 px-4">{customer.name}</td>
+                                    <td className="py-2 px-4">{customer.nom}</td>
                                     <td className="py-2 px-4">{customer.email}</td>
                                     <td className="py-2 px-4">
                                         <button
@@ -105,6 +113,7 @@ const DashboardPage: React.FC = () => {
                             <tr className="border-b border-[hsl(var(--border))]">
                                 <th className="py-2 px-4 text-left">ID</th>
                                 <th className="py-2 px-4 text-left">Type</th>
+                                <th className="py-2 px-4 text-left">ClientID</th>
                                 <th className="py-2 px-4 text-left">Balance</th>
                                 <th className="py-2 px-4 text-left">Actions</th>
                             </tr>
@@ -114,6 +123,7 @@ const DashboardPage: React.FC = () => {
                                 <tr key={account.id} className="hover:bg-[hsl(var(--muted))]">
                                     <td className="py-2 px-4">{account.id}</td>
                                     <td className="py-2 px-4">{account.type}</td>
+                                    <td className="py-2 px-4">{account.clientId}</td>
                                     <td className="py-2 px-4">€{account.solde.toFixed(2)}</td>
                                     <td className="py-2 px-4">
                                         <button

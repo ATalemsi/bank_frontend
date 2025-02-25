@@ -1,8 +1,9 @@
+"use client"
+
 import type React from "react"
-import { Formik, Form, Field } from "formik"
+import { Formik, Form, Field, ErrorMessage } from "formik"
 import * as Yup from "yup"
-import { Button, TextField, Card, CardContent, Box } from "@mui/material"
-import { UserPlus } from "lucide-react"
+import { AlertCircle, UserPlus } from "lucide-react"
 
 interface CustomerFormProps {
     onSubmit: (customerData: any) => void
@@ -14,71 +15,78 @@ const validationSchema = Yup.object({
 })
 
 const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
+    const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
+        try {
+            await onSubmit(values)
+            resetForm()
+            // Success is handled by the parent component
+        } catch (error) {
+            console.error("Error submitting form:", error)
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
     return (
-        <Card className="max-w-md mx-auto mb-8 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg overflow-hidden border border-border/50">
-            <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-6">
-                <h2 className="text-2xl font-semibold tracking-tight">Add New Client</h2>
-                <p className="text-primary-foreground/80 mt-1 text-sm">Enter client details below</p>
-            </div>
-            <CardContent className="p-6">
-                <Formik
-                    initialValues={{ nom: "", email: "" }}
-                    validationSchema={validationSchema}
-                    onSubmit={async (values, { resetForm }) => {
-                        await onSubmit(values)
-                        resetForm()
-                    }}
-                >
-                    {({ errors, touched, handleChange, handleBlur, values }) => (
-                        <Form className="space-y-6">
-                            <div className="space-y-2">
-                                <Field
-                                    as={TextField}
-                                    fullWidth
-                                    label="Name"
-                                    name="nom"
-                                    value={values.nom}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={touched.nom && Boolean(errors.nom)}
-                                    helperText={touched.nom && errors.nom}
-                                    variant="outlined"
-                                    className="backdrop-blur-sm"
-                                />
-                            </div>
+        <Formik initialValues={{ nom: "", email: "" }} validationSchema={validationSchema} onSubmit={handleSubmit}>
+            {({ errors, touched }) => (
+                <Form className="space-y-6 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 font-serif">Create New Client</h2>
 
-                            <div className="space-y-2">
-                                <Field
-                                    as={TextField}
-                                    fullWidth
-                                    label="Email"
-                                    name="email"
-                                    type="email"
-                                    value={values.email}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={touched.email && Boolean(errors.email)}
-                                    helperText={touched.email && errors.email}
-                                    variant="outlined"
-                                    className="backdrop-blur-sm"
-                                />
-                            </div>
+                    <div>
+                        <label htmlFor="nom" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Name
+                        </label>
+                        <Field
+                            type="text"
+                            id="nom"
+                            name="nom"
+                            className={`mt-1 block w-full px-3 py-2 border ${
+                                errors.nom && touched.nom ? "border-red-500" : "border-gray-300"
+                            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out`}
+                        />
+                        <ErrorMessage name="nom">
+                            {(msg) => (
+                                <div className="mt-1 flex items-center text-sm text-red-600">
+                                    <AlertCircle className="h-4 w-4 mr-1" />
+                                    {msg}
+                                </div>
+                            )}
+                        </ErrorMessage>
+                    </div>
 
-                            <Box className="flex justify-end pt-4">
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-lg hover:shadow-xl"
-                                >
-                                    <UserPlus className="h-5 w-5" />
-                                    Add Client
-                                </Button>
-                            </Box>
-                        </Form>
-                    )}
-                </Formik>
-            </CardContent>
-        </Card>
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Email
+                        </label>
+                        <Field
+                            type="email"
+                            id="email"
+                            name="email"
+                            className={`mt-1 block w-full px-3 py-2 border ${
+                                errors.email && touched.email ? "border-red-500" : "border-gray-300"
+                            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out`}
+                        />
+                        <ErrorMessage name="email">
+                            {(msg) => (
+                                <div className="mt-1 flex items-center text-sm text-red-600">
+                                    <AlertCircle className="h-4 w-4 mr-1" />
+                                    {msg}
+                                </div>
+                            )}
+                        </ErrorMessage>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:scale-105"
+                    >
+                        <UserPlus className="h-5 w-5 mr-2" />
+                        Create Client
+                    </button>
+                </Form>
+            )}
+        </Formik>
     )
 }
 

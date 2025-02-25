@@ -30,8 +30,17 @@ export const getAccountById = async (accountId: number) => {
 };
 
 export const createAccount = async (accountData: any) => {
-    const response = await api.post("/accounts", accountData);
-    return response.data;
+    try {
+        const response = await api.post("/accounts", accountData);
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            // Extract the error message from the response body
+            const errorMessage = error.response.data || "Failed to create account";
+            throw new Error(errorMessage);
+        }
+        throw new Error("An unexpected error occurred");
+    }
 };
 
 export const getAccounts = async () => {

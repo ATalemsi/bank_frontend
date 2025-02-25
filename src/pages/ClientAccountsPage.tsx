@@ -39,6 +39,7 @@ const ClientAccountsPage: React.FC = () => {
         try {
             const data = await getAccountsByClientId(id)
             setAccounts(data)
+            console.log(data)
         } catch (error) {
             console.error("Failed to fetch accounts:", error)
         }
@@ -47,7 +48,7 @@ const ClientAccountsPage: React.FC = () => {
     return (
         <Container maxWidth="lg" className="py-8">
             <div className="mb-6 flex items-center justify-between">
-                <Button className="flex items-center gap-2" onClick={() => navigate("/clients")} variant="outlined">
+                <Button className="flex items-center gap-2" onClick={() => navigate("/customers")} variant="outlined">
                     <ArrowLeft className="h-4 w-4" />
                     Back to Clients
                 </Button>
